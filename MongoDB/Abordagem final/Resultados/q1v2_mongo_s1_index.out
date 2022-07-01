@@ -1,0 +1,903 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "B993EC92",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								}
+							}
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 466999,
+					"totalKeysExamined" : 57045838,
+					"totalDocsExamined" : 999979,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 251468,
+						"works" : 57045839,
+						"advanced" : 999979,
+						"needTime" : 56045859,
+						"needYield" : 0,
+						"saveState" : 66909,
+						"restoreState" : 66909,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 229567,
+							"works" : 57045839,
+							"advanced" : 999979,
+							"needTime" : 56045859,
+							"needYield" : 0,
+							"saveState" : 66909,
+							"restoreState" : 66909,
+							"isEOF" : 1,
+							"docsExamined" : 999979,
+							"alreadyHasObj" : 0,
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"nReturned" : 999979,
+								"executionTimeMillisEstimate" : 10763,
+								"works" : 57045839,
+								"advanced" : 999979,
+								"needTime" : 56045859,
+								"needYield" : 0,
+								"saveState" : 66909,
+								"restoreState" : 66909,
+								"isEOF" : 1,
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								},
+								"keysExamined" : 57045838,
+								"seeks" : 1,
+								"dupsTested" : 57045838,
+								"dupsDropped" : 56045859
+							}
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(328103)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(2735280),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(2735280),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(3039200),
+				"COUNT(*)" : NumberLong(2735280)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(441792)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(444286)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(460785)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "B993EC92",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								}
+							}
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 469452,
+					"totalKeysExamined" : 57045838,
+					"totalDocsExamined" : 999979,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 247642,
+						"works" : 57045839,
+						"advanced" : 999979,
+						"needTime" : 56045859,
+						"needYield" : 0,
+						"saveState" : 66623,
+						"restoreState" : 66623,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 226531,
+							"works" : 57045839,
+							"advanced" : 999979,
+							"needTime" : 56045859,
+							"needYield" : 0,
+							"saveState" : 66623,
+							"restoreState" : 66623,
+							"isEOF" : 1,
+							"docsExamined" : 999979,
+							"alreadyHasObj" : 0,
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"nReturned" : 999979,
+								"executionTimeMillisEstimate" : 12774,
+								"works" : 57045839,
+								"advanced" : 999979,
+								"needTime" : 56045859,
+								"needYield" : 0,
+								"saveState" : 66623,
+								"restoreState" : 66623,
+								"isEOF" : 1,
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								},
+								"keysExamined" : 57045838,
+								"seeks" : 1,
+								"dupsTested" : 57045838,
+								"dupsDropped" : 56045859
+							}
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(329707)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(2735280),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(2735280),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(3039200),
+				"COUNT(*)" : NumberLong(2735280)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(443707)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(446447)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(463265)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "B993EC92",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								}
+							}
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 483331,
+					"totalKeysExamined" : 57045838,
+					"totalDocsExamined" : 999979,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 255663,
+						"works" : 57045839,
+						"advanced" : 999979,
+						"needTime" : 56045859,
+						"needYield" : 0,
+						"saveState" : 67016,
+						"restoreState" : 67016,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "FETCH",
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 234207,
+							"works" : 57045839,
+							"advanced" : 999979,
+							"needTime" : 56045859,
+							"needYield" : 0,
+							"saveState" : 67016,
+							"restoreState" : 67016,
+							"isEOF" : 1,
+							"docsExamined" : 999979,
+							"alreadyHasObj" : 0,
+							"inputStage" : {
+								"stage" : "IXSCAN",
+								"nReturned" : 999979,
+								"executionTimeMillisEstimate" : 13731,
+								"works" : 57045839,
+								"advanced" : 999979,
+								"needTime" : 56045859,
+								"needYield" : 0,
+								"saveState" : 67016,
+								"restoreState" : 67016,
+								"isEOF" : 1,
+								"keyPattern" : {
+									"c_orders.o_lineitems.l_shipdate" : 1
+								},
+								"indexName" : "c_orders.o_lineitems.l_shipdate_1",
+								"isMultiKey" : true,
+								"multiKeyPaths" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"c_orders",
+										"c_orders.o_lineitems"
+									]
+								},
+								"isUnique" : false,
+								"isSparse" : false,
+								"isPartial" : false,
+								"indexVersion" : 2,
+								"direction" : "forward",
+								"indexBounds" : {
+									"c_orders.o_lineitems.l_shipdate" : [
+										"[new Date(-9223372036854775808), new Date(903139200000)]"
+									]
+								},
+								"keysExamined" : 57045838,
+								"seeks" : 1,
+								"dupsTested" : 57045838,
+								"dupsDropped" : 56045859
+							}
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(337862)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(2735280),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(2735280),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(3039200),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(3039200),
+				"COUNT(*)" : NumberLong(2735280)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(457305)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(460048)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(477425)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

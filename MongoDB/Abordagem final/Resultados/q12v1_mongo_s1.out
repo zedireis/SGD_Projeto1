@@ -1,0 +1,1230 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "7D406A01",
+					"planCacheKey" : "4970FF0A",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 134604,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 49374,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 13930,
+						"restoreState" : 13930,
+						"isEOF" : 1,
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 43369,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 13930,
+							"restoreState" : 13930,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(77176)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders"
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(83621)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : "$orders.o_orderpriority",
+				"lineitems" : {
+					"$filter" : {
+						"input" : "$orders.o_lineitems",
+						"as" : "l",
+						"cond" : {
+							"$and" : [
+								{
+									"$in" : [
+										"$$l.l_shipmode",
+										{
+											"$const" : [
+												"RAIL",
+												"REG AIR"
+											]
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_commitdate",
+										"$$l.l_receiptdate"
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_shipdate",
+										"$$l.l_commitdate"
+									]
+								},
+								{
+									"$gte" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1992-01-01T00:00:00Z")
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1993-01-01T00:00:00Z")
+										}
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(132623)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(134090)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : true,
+				"l_shipmode" : "$lineitems.l_shipmode"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(134199)
+		},
+		{
+			"$group" : {
+				"_id" : "$l_shipmode",
+				"high_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$or" : [
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				},
+				"low_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$and" : [
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"high_line_count" : NumberLong(144),
+				"low_line_count" : NumberLong(144)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(522),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(134578)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(554),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(134578)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : 0,
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : "$orders"
+			},
+			{
+				"$project" : {
+					"orderpriority" : "$orders.o_orderpriority",
+					"lineitems" : {
+						"$filter" : {
+							"input" : "$orders.o_lineitems",
+							"as" : "l",
+							"cond" : {
+								"$and" : [
+									{
+										"$in" : [
+											"$$l.l_shipmode",
+											[
+												"RAIL",
+												"REG AIR"
+											]
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_commitdate",
+											"$$l.l_receiptdate"
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_shipdate",
+											"$$l.l_commitdate"
+										]
+									},
+									{
+										"$gte" : [
+											"$$l.l_receiptdate",
+											ISODate("1992-01-01T00:00:00Z")
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_receiptdate",
+											ISODate("1993-01-01T00:00:00Z")
+										]
+									}
+								]
+							}
+						}
+					}
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$project" : {
+					"orderpriority" : 1,
+					"l_shipmode" : "$lineitems.l_shipmode"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$l_shipmode",
+					"high_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$or" : [
+												{
+													"$eq" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$eq" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					},
+					"low_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$and" : [
+												{
+													"$ne" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$ne" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "7D406A01",
+					"planCacheKey" : "4970FF0A",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 116838,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 34331,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 13291,
+						"restoreState" : 13291,
+						"isEOF" : 1,
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 29999,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 13291,
+							"restoreState" : 13291,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(62494)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders"
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(68055)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : "$orders.o_orderpriority",
+				"lineitems" : {
+					"$filter" : {
+						"input" : "$orders.o_lineitems",
+						"as" : "l",
+						"cond" : {
+							"$and" : [
+								{
+									"$in" : [
+										"$$l.l_shipmode",
+										{
+											"$const" : [
+												"RAIL",
+												"REG AIR"
+											]
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_commitdate",
+										"$$l.l_receiptdate"
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_shipdate",
+										"$$l.l_commitdate"
+									]
+								},
+								{
+									"$gte" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1992-01-01T00:00:00Z")
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1993-01-01T00:00:00Z")
+										}
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(115020)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(116385)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : true,
+				"l_shipmode" : "$lineitems.l_shipmode"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(116520)
+		},
+		{
+			"$group" : {
+				"_id" : "$l_shipmode",
+				"high_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$or" : [
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				},
+				"low_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$and" : [
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"high_line_count" : NumberLong(144),
+				"low_line_count" : NumberLong(144)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(522),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(116834)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(554),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(116834)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : 0,
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : "$orders"
+			},
+			{
+				"$project" : {
+					"orderpriority" : "$orders.o_orderpriority",
+					"lineitems" : {
+						"$filter" : {
+							"input" : "$orders.o_lineitems",
+							"as" : "l",
+							"cond" : {
+								"$and" : [
+									{
+										"$in" : [
+											"$$l.l_shipmode",
+											[
+												"RAIL",
+												"REG AIR"
+											]
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_commitdate",
+											"$$l.l_receiptdate"
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_shipdate",
+											"$$l.l_commitdate"
+										]
+									},
+									{
+										"$gte" : [
+											"$$l.l_receiptdate",
+											ISODate("1992-01-01T00:00:00Z")
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_receiptdate",
+											ISODate("1993-01-01T00:00:00Z")
+										]
+									}
+								]
+							}
+						}
+					}
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$project" : {
+					"orderpriority" : 1,
+					"l_shipmode" : "$lineitems.l_shipmode"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$l_shipmode",
+					"high_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$or" : [
+												{
+													"$eq" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$eq" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					},
+					"low_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$and" : [
+												{
+													"$ne" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$ne" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "7D406A01",
+					"planCacheKey" : "4970FF0A",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 114904,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 33793,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 13276,
+						"restoreState" : 13276,
+						"isEOF" : 1,
+						"transformBy" : {
+							"orders" : "$c_orders",
+							"_id" : false
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 28889,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 13276,
+							"restoreState" : 13276,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(61022)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders"
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(66206)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : "$orders.o_orderpriority",
+				"lineitems" : {
+					"$filter" : {
+						"input" : "$orders.o_lineitems",
+						"as" : "l",
+						"cond" : {
+							"$and" : [
+								{
+									"$in" : [
+										"$$l.l_shipmode",
+										{
+											"$const" : [
+												"RAIL",
+												"REG AIR"
+											]
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_commitdate",
+										"$$l.l_receiptdate"
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_shipdate",
+										"$$l.l_commitdate"
+									]
+								},
+								{
+									"$gte" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1992-01-01T00:00:00Z")
+										}
+									]
+								},
+								{
+									"$lt" : [
+										"$$l.l_receiptdate",
+										{
+											"$const" : ISODate("1993-01-01T00:00:00Z")
+										}
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			"nReturned" : NumberLong(14999999),
+			"executionTimeMillisEstimate" : NumberLong(113269)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(114459)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderpriority" : true,
+				"l_shipmode" : "$lineitems.l_shipmode"
+			},
+			"nReturned" : NumberLong(252407),
+			"executionTimeMillisEstimate" : NumberLong(114604)
+		},
+		{
+			"$group" : {
+				"_id" : "$l_shipmode",
+				"high_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$or" : [
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$eq" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				},
+				"low_line_count" : {
+					"$sum" : {
+						"$switch" : {
+							"branches" : [
+								{
+									"case" : {
+										"$and" : [
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "1-URGENT"
+													}
+												]
+											},
+											{
+												"$ne" : [
+													"$orderpriority",
+													{
+														"$const" : "2-HIGH"
+													}
+												]
+											}
+										]
+									},
+									"then" : {
+										"$const" : 1
+									}
+								}
+							],
+							"default" : {
+								"$const" : 0
+							}
+						}
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"high_line_count" : NumberLong(144),
+				"low_line_count" : NumberLong(144)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(522),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(114898)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(554),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(2),
+			"executionTimeMillisEstimate" : NumberLong(114898)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : 0,
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : "$orders"
+			},
+			{
+				"$project" : {
+					"orderpriority" : "$orders.o_orderpriority",
+					"lineitems" : {
+						"$filter" : {
+							"input" : "$orders.o_lineitems",
+							"as" : "l",
+							"cond" : {
+								"$and" : [
+									{
+										"$in" : [
+											"$$l.l_shipmode",
+											[
+												"RAIL",
+												"REG AIR"
+											]
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_commitdate",
+											"$$l.l_receiptdate"
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_shipdate",
+											"$$l.l_commitdate"
+										]
+									},
+									{
+										"$gte" : [
+											"$$l.l_receiptdate",
+											ISODate("1992-01-01T00:00:00Z")
+										]
+									},
+									{
+										"$lt" : [
+											"$$l.l_receiptdate",
+											ISODate("1993-01-01T00:00:00Z")
+										]
+									}
+								]
+							}
+						}
+					}
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$project" : {
+					"orderpriority" : 1,
+					"l_shipmode" : "$lineitems.l_shipmode"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$l_shipmode",
+					"high_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$or" : [
+												{
+													"$eq" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$eq" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					},
+					"low_line_count" : {
+						"$sum" : {
+							"$switch" : {
+								"branches" : [
+									{
+										"case" : {
+											"$and" : [
+												{
+													"$ne" : [
+														"$orderpriority",
+														"1-URGENT"
+													]
+												},
+												{
+													"$ne" : [
+														"$orderpriority",
+														"2-HIGH"
+													]
+												}
+											]
+										},
+										"then" : 1
+									}
+								],
+								"default" : 0
+							}
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

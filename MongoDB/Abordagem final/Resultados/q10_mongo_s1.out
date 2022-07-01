@@ -1,0 +1,849 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"$and" : [
+							{
+								"c_orders.c_lineitems.l_returnflag" : {
+									"$eq" : "R"
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$lt" : ISODate("1993-11-01T00:00:00Z")
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$gte" : ISODate("1993-08-01T00:00:00Z")
+								}
+							}
+						]
+					},
+					"queryHash" : "A1B2432B",
+					"planCacheKey" : "A5243548",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 0,
+					"executionTimeMillis" : 73144,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 0,
+						"executionTimeMillisEstimate" : 72943,
+						"works" : 1500002,
+						"advanced" : 0,
+						"needTime" : 1500001,
+						"needYield" : 0,
+						"saveState" : 3702,
+						"restoreState" : 3702,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"nReturned" : 0,
+							"executionTimeMillisEstimate" : 72887,
+							"works" : 1500002,
+							"advanced" : 0,
+							"needTime" : 1500001,
+							"needYield" : 0,
+							"saveState" : 3702,
+							"restoreState" : 3702,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_phone" : "$c_phone",
+					"c_comment" : "$c_comment",
+					"c_acctbal" : "$c_acctbal",
+					"c_address" : "$c_address",
+					"c_custkey" : "$c_custkey",
+					"c_name" : "$c_name"
+				},
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+					"$sum" : {
+						"$multiply" : [
+							"$c_orders.o_lineitems.l_extendedprice",
+							"$c_orders.o_lineitems.l_discount"
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : NumberLong(0)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(0),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		},
+		{
+			"$project" : {
+				"c_custkey" : "$_id.c_custkey",
+				"c_name" : "$_id.c_name",
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+				"c_acctbal" : "$_id.c_acctbal",
+				"c_address" : "$_id.c_address",
+				"c_phone" : "$_id.c_phone",
+				"c_comment" : "$_id.c_comment",
+				"_id" : false
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		},
+		{
+			"$limit" : NumberLong(20),
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(73130)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$gte" : ISODate("1993-08-01T00:00:00Z"),
+						"$lt" : ISODate("1993-11-01T00:00:00Z")
+					},
+					"c_orders.c_lineitems.l_returnflag" : "R"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_phone" : "$c_phone",
+						"c_comment" : "$c_comment",
+						"c_acctbal" : "$c_acctbal",
+						"c_address" : "$c_address",
+						"c_custkey" : "$c_custkey",
+						"c_name" : "$c_name"
+					},
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+						"$sum" : {
+							"$multiply" : [
+								"$c_orders.o_lineitems.l_extendedprice",
+								"$c_orders.o_lineitems.l_discount"
+							]
+						}
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_custkey" : "$_id.c_custkey",
+					"c_name" : "$_id.c_name",
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+					"c_acctbal" : "$_id.c_acctbal",
+					"c_address" : "$_id.c_address",
+					"c_phone" : "$_id.c_phone",
+					"c_comment" : "$_id.c_comment",
+					"_id" : 0
+				}
+			},
+			{
+				"$limit" : 20
+			}
+		],
+		"allowDiskUse" : true,
+		"maxTimeMS" : 14400000,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"$and" : [
+							{
+								"c_orders.c_lineitems.l_returnflag" : {
+									"$eq" : "R"
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$lt" : ISODate("1993-11-01T00:00:00Z")
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$gte" : ISODate("1993-08-01T00:00:00Z")
+								}
+							}
+						]
+					},
+					"queryHash" : "A1B2432B",
+					"planCacheKey" : "A5243548",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 0,
+					"executionTimeMillis" : 70263,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 0,
+						"executionTimeMillisEstimate" : 69877,
+						"works" : 1500002,
+						"advanced" : 0,
+						"needTime" : 1500001,
+						"needYield" : 0,
+						"saveState" : 3667,
+						"restoreState" : 3667,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"nReturned" : 0,
+							"executionTimeMillisEstimate" : 69805,
+							"works" : 1500002,
+							"advanced" : 0,
+							"needTime" : 1500001,
+							"needYield" : 0,
+							"saveState" : 3667,
+							"restoreState" : 3667,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_phone" : "$c_phone",
+					"c_comment" : "$c_comment",
+					"c_acctbal" : "$c_acctbal",
+					"c_address" : "$c_address",
+					"c_custkey" : "$c_custkey",
+					"c_name" : "$c_name"
+				},
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+					"$sum" : {
+						"$multiply" : [
+							"$c_orders.o_lineitems.l_extendedprice",
+							"$c_orders.o_lineitems.l_discount"
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : NumberLong(0)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(0),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		},
+		{
+			"$project" : {
+				"c_custkey" : "$_id.c_custkey",
+				"c_name" : "$_id.c_name",
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+				"c_acctbal" : "$_id.c_acctbal",
+				"c_address" : "$_id.c_address",
+				"c_phone" : "$_id.c_phone",
+				"c_comment" : "$_id.c_comment",
+				"_id" : false
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		},
+		{
+			"$limit" : NumberLong(20),
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(70246)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$gte" : ISODate("1993-08-01T00:00:00Z"),
+						"$lt" : ISODate("1993-11-01T00:00:00Z")
+					},
+					"c_orders.c_lineitems.l_returnflag" : "R"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_phone" : "$c_phone",
+						"c_comment" : "$c_comment",
+						"c_acctbal" : "$c_acctbal",
+						"c_address" : "$c_address",
+						"c_custkey" : "$c_custkey",
+						"c_name" : "$c_name"
+					},
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+						"$sum" : {
+							"$multiply" : [
+								"$c_orders.o_lineitems.l_extendedprice",
+								"$c_orders.o_lineitems.l_discount"
+							]
+						}
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_custkey" : "$_id.c_custkey",
+					"c_name" : "$_id.c_name",
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+					"c_acctbal" : "$_id.c_acctbal",
+					"c_address" : "$_id.c_address",
+					"c_phone" : "$_id.c_phone",
+					"c_comment" : "$_id.c_comment",
+					"_id" : 0
+				}
+			},
+			{
+				"$limit" : 20
+			}
+		],
+		"allowDiskUse" : true,
+		"maxTimeMS" : 14400000,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"$and" : [
+							{
+								"c_orders.c_lineitems.l_returnflag" : {
+									"$eq" : "R"
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$lt" : ISODate("1993-11-01T00:00:00Z")
+								}
+							},
+							{
+								"c_orders.o_orderdate" : {
+									"$gte" : ISODate("1993-08-01T00:00:00Z")
+								}
+							}
+						]
+					},
+					"queryHash" : "A1B2432B",
+					"planCacheKey" : "A5243548",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 0,
+					"executionTimeMillis" : 72327,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 0,
+						"executionTimeMillisEstimate" : 72054,
+						"works" : 1500002,
+						"advanced" : 0,
+						"needTime" : 1500001,
+						"needYield" : 0,
+						"saveState" : 3722,
+						"restoreState" : 3722,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_acctbal" : 1,
+							"c_address" : 1,
+							"c_comment" : 1,
+							"c_custkey" : 1,
+							"c_name" : 1,
+							"c_orders" : 1,
+							"c_phone" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"$and" : [
+									{
+										"c_orders.c_lineitems.l_returnflag" : {
+											"$eq" : "R"
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$lt" : ISODate("1993-11-01T00:00:00Z")
+										}
+									},
+									{
+										"c_orders.o_orderdate" : {
+											"$gte" : ISODate("1993-08-01T00:00:00Z")
+										}
+									}
+								]
+							},
+							"nReturned" : 0,
+							"executionTimeMillisEstimate" : 71940,
+							"works" : 1500002,
+							"advanced" : 0,
+							"needTime" : 1500001,
+							"needYield" : 0,
+							"saveState" : 3722,
+							"restoreState" : 3722,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_phone" : "$c_phone",
+					"c_comment" : "$c_comment",
+					"c_acctbal" : "$c_acctbal",
+					"c_address" : "$c_address",
+					"c_custkey" : "$c_custkey",
+					"c_name" : "$c_name"
+				},
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+					"$sum" : {
+						"$multiply" : [
+							"$c_orders.o_lineitems.l_extendedprice",
+							"$c_orders.o_lineitems.l_discount"
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : NumberLong(0)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(0),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		},
+		{
+			"$project" : {
+				"c_custkey" : "$_id.c_custkey",
+				"c_name" : "$_id.c_name",
+				"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+				"c_acctbal" : "$_id.c_acctbal",
+				"c_address" : "$_id.c_address",
+				"c_phone" : "$_id.c_phone",
+				"c_comment" : "$_id.c_comment",
+				"_id" : false
+			},
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		},
+		{
+			"$limit" : NumberLong(20),
+			"nReturned" : NumberLong(0),
+			"executionTimeMillisEstimate" : NumberLong(72317)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$gte" : ISODate("1993-08-01T00:00:00Z"),
+						"$lt" : ISODate("1993-11-01T00:00:00Z")
+					},
+					"c_orders.c_lineitems.l_returnflag" : "R"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_phone" : "$c_phone",
+						"c_comment" : "$c_comment",
+						"c_acctbal" : "$c_acctbal",
+						"c_address" : "$c_address",
+						"c_custkey" : "$c_custkey",
+						"c_name" : "$c_name"
+					},
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : {
+						"$sum" : {
+							"$multiply" : [
+								"$c_orders.o_lineitems.l_extendedprice",
+								"$c_orders.o_lineitems.l_discount"
+							]
+						}
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_custkey" : "$_id.c_custkey",
+					"c_name" : "$_id.c_name",
+					"SUM(c_orders᎐c_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐c_lineitems᎐l_extendedprice)",
+					"c_acctbal" : "$_id.c_acctbal",
+					"c_address" : "$_id.c_address",
+					"c_phone" : "$_id.c_phone",
+					"c_comment" : "$_id.c_comment",
+					"_id" : 0
+				}
+			},
+			{
+				"$limit" : 20
+			}
+		],
+		"allowDiskUse" : true,
+		"maxTimeMS" : 14400000,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

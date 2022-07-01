@@ -1,0 +1,750 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "486CC2AE",
+					"planCacheKey" : "26FCA148",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 94515,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 37178,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 12057,
+						"restoreState" : 12057,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 32340,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 12057,
+							"restoreState" : 12057,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(64608)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders",
+				"preserveNullAndEmptyArrays" : true
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(67832)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderkey" : "$orders.o_orderkey",
+				"ordercomment" : "$orders.o_comment"
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(76790)
+		},
+		{
+			"$match" : {
+				"ordercomment" : {
+					"$not" : {
+						"$regex" : ".*express.*packages.*"
+					}
+				}
+			},
+			"nReturned" : NumberLong(15339283),
+			"executionTimeMillisEstimate" : NumberLong(91966)
+		},
+		{
+			"$group" : {
+				"_id" : "$_id",
+				"c_count" : {
+					"$sum" : {
+						"$cond" : [
+							{
+								"$eq" : [
+									"$orderkey",
+									{
+										"$const" : undefined
+									}
+								]
+							},
+							{
+								"$const" : 0
+							},
+							{
+								"$const" : 1
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_count" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(94511)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_count",
+				"custdist" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"custdist" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(94511)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(317),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(94511)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : "$c_custkey",
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$orders",
+					"preserveNullAndEmptyArrays" : true
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 1,
+					"orderkey" : "$orders.o_orderkey",
+					"ordercomment" : "$orders.o_comment"
+				}
+			},
+			{
+				"$match" : {
+					"ordercomment" : {
+						"$not" : /.*express.*packages.*/
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$_id",
+					"c_count" : {
+						"$sum" : {
+							"$cond" : [
+								{
+									"$eq" : [
+										"$orderkey",
+										undefined
+									]
+								},
+								0,
+								1
+							]
+						}
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_count",
+					"custdist" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "486CC2AE",
+					"planCacheKey" : "26FCA148",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 101800,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 42892,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 12384,
+						"restoreState" : 12384,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 37767,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 12384,
+							"restoreState" : 12384,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(70550)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders",
+				"preserveNullAndEmptyArrays" : true
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(73993)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderkey" : "$orders.o_orderkey",
+				"ordercomment" : "$orders.o_comment"
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(83128)
+		},
+		{
+			"$match" : {
+				"ordercomment" : {
+					"$not" : {
+						"$regex" : ".*express.*packages.*"
+					}
+				}
+			},
+			"nReturned" : NumberLong(15339283),
+			"executionTimeMillisEstimate" : NumberLong(99266)
+		},
+		{
+			"$group" : {
+				"_id" : "$_id",
+				"c_count" : {
+					"$sum" : {
+						"$cond" : [
+							{
+								"$eq" : [
+									"$orderkey",
+									{
+										"$const" : undefined
+									}
+								]
+							},
+							{
+								"$const" : 0
+							},
+							{
+								"$const" : 1
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_count" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(101798)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_count",
+				"custdist" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"custdist" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(101798)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(317),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(101798)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : "$c_custkey",
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$orders",
+					"preserveNullAndEmptyArrays" : true
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 1,
+					"orderkey" : "$orders.o_orderkey",
+					"ordercomment" : "$orders.o_comment"
+				}
+			},
+			{
+				"$match" : {
+					"ordercomment" : {
+						"$not" : /.*express.*packages.*/
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$_id",
+					"c_count" : {
+						"$sum" : {
+							"$cond" : [
+								{
+									"$eq" : [
+										"$orderkey",
+										undefined
+									]
+								},
+								0,
+								1
+							]
+						}
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_count",
+					"custdist" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						
+					},
+					"queryHash" : "486CC2AE",
+					"planCacheKey" : "26FCA148",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1500000,
+					"executionTimeMillis" : 88234,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1500000,
+						"executionTimeMillisEstimate" : 31889,
+						"works" : 1500002,
+						"advanced" : 1500000,
+						"needTime" : 1,
+						"needYield" : 0,
+						"saveState" : 11603,
+						"restoreState" : 11603,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : "$c_custkey",
+							"orders" : "$c_orders"
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"nReturned" : 1500000,
+							"executionTimeMillisEstimate" : 27882,
+							"works" : 1500002,
+							"advanced" : 1500000,
+							"needTime" : 1,
+							"needYield" : 0,
+							"saveState" : 11603,
+							"restoreState" : 11603,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1500000),
+			"executionTimeMillisEstimate" : NumberLong(59002)
+		},
+		{
+			"$unwind" : {
+				"path" : "$orders",
+				"preserveNullAndEmptyArrays" : true
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(61875)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"orderkey" : "$orders.o_orderkey",
+				"ordercomment" : "$orders.o_comment"
+			},
+			"nReturned" : NumberLong(15500017),
+			"executionTimeMillisEstimate" : NumberLong(70438)
+		},
+		{
+			"$match" : {
+				"ordercomment" : {
+					"$not" : {
+						"$regex" : ".*express.*packages.*"
+					}
+				}
+			},
+			"nReturned" : NumberLong(15339283),
+			"executionTimeMillisEstimate" : NumberLong(85568)
+		},
+		{
+			"$group" : {
+				"_id" : "$_id",
+				"c_count" : {
+					"$sum" : {
+						"$cond" : [
+							{
+								"$eq" : [
+									"$orderkey",
+									{
+										"$const" : undefined
+									}
+								]
+							},
+							{
+								"$const" : 0
+							},
+							{
+								"$const" : 1
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_count" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(88231)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_count",
+				"custdist" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"custdist" : NumberLong(72)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(88231)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(317),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(88231)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$project" : {
+					"_id" : "$c_custkey",
+					"orders" : "$c_orders"
+				}
+			},
+			{
+				"$unwind" : {
+					"path" : "$orders",
+					"preserveNullAndEmptyArrays" : true
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 1,
+					"orderkey" : "$orders.o_orderkey",
+					"ordercomment" : "$orders.o_comment"
+				}
+			},
+			{
+				"$match" : {
+					"ordercomment" : {
+						"$not" : /.*express.*packages.*/
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$_id",
+					"c_count" : {
+						"$sum" : {
+							"$cond" : [
+								{
+									"$eq" : [
+										"$orderkey",
+										undefined
+									]
+								},
+								0,
+								1
+							]
+						}
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_count",
+					"custdist" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"custdist" : -1,
+					"_id" : -1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

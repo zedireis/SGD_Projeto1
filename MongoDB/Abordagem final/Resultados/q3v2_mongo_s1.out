@@ -1,0 +1,795 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_mktsegment" : {
+							"$eq" : "AUTOMOBILE"
+						}
+					},
+					"queryHash" : "8ECC6016",
+					"planCacheKey" : "59F2C682",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 300036,
+					"executionTimeMillis" : 60498,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 300036,
+						"executionTimeMillisEstimate" : 51178,
+						"works" : 1500002,
+						"advanced" : 300036,
+						"needTime" : 1199965,
+						"needYield" : 0,
+						"saveState" : 4588,
+						"restoreState" : 4588,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"nReturned" : 300036,
+							"executionTimeMillisEstimate" : 50422,
+							"works" : 1500002,
+							"advanced" : 300036,
+							"needTime" : 1199965,
+							"needYield" : 0,
+							"saveState" : 4588,
+							"restoreState" : 4588,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(300036),
+			"executionTimeMillisEstimate" : NumberLong(57173)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(3000540),
+			"executionTimeMillisEstimate" : NumberLong(58255)
+		},
+		{
+			"$match" : {
+				"c_orders.o_orderdate" : {
+					"$lt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(60472)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"o_orderkey" : "$c_orders.o_orderkey",
+				"o_orderdate" : "$c_orders.o_orderdate",
+				"o_shippriority" : "$c_orders.o_shippriority",
+				"lineitems" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(60482)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(4972),
+			"executionTimeMillisEstimate" : NumberLong(60482)
+		},
+		{
+			"$match" : {
+				"lineitems.l_shipdate" : {
+					"$gt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(4939),
+			"executionTimeMillisEstimate" : NumberLong(60482)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"l_orderkey" : "$o_orderkey",
+					"o_orderdate" : "$o_orderdate",
+					"o_shippriority" : "$o_shippriority"
+				},
+				"revenue" : {
+					"$sum" : {
+						"$multiply" : [
+							"$lineitems.l_extendedprice",
+							{
+								"$subtract" : [
+									{
+										"$const" : 1
+									},
+									"$lineitems.l_discount"
+								]
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"revenue" : NumberLong(90216)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(613970),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1253),
+			"executionTimeMillisEstimate" : NumberLong(60496)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				},
+				"limit" : NumberLong(10)
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(23698),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(10),
+			"executionTimeMillisEstimate" : NumberLong(60496)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_mktsegment" : "AUTOMOBILE"
+				}
+			},
+			{
+				"$unwind" : "$c_orders"
+			},
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$lt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$project" : {
+					"o_orderkey" : "$c_orders.o_orderkey",
+					"o_orderdate" : "$c_orders.o_orderdate",
+					"o_shippriority" : "$c_orders.o_shippriority",
+					"lineitems" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$match" : {
+					"lineitems.l_shipdate" : {
+						"$gt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"l_orderkey" : "$o_orderkey",
+						"o_orderdate" : "$o_orderdate",
+						"o_shippriority" : "$o_shippriority"
+					},
+					"revenue" : {
+						"$sum" : {
+							"$multiply" : [
+								"$lineitems.l_extendedprice",
+								{
+									"$subtract" : [
+										1,
+										"$lineitems.l_discount"
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				}
+			},
+			{
+				"$limit" : 10
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_mktsegment" : {
+							"$eq" : "AUTOMOBILE"
+						}
+					},
+					"queryHash" : "8ECC6016",
+					"planCacheKey" : "59F2C682",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 300036,
+					"executionTimeMillis" : 64443,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 300036,
+						"executionTimeMillisEstimate" : 54929,
+						"works" : 1500002,
+						"advanced" : 300036,
+						"needTime" : 1199965,
+						"needYield" : 0,
+						"saveState" : 4714,
+						"restoreState" : 4714,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"nReturned" : 300036,
+							"executionTimeMillisEstimate" : 53892,
+							"works" : 1500002,
+							"advanced" : 300036,
+							"needTime" : 1199965,
+							"needYield" : 0,
+							"saveState" : 4714,
+							"restoreState" : 4714,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(300036),
+			"executionTimeMillisEstimate" : NumberLong(60719)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(3000540),
+			"executionTimeMillisEstimate" : NumberLong(61938)
+		},
+		{
+			"$match" : {
+				"c_orders.o_orderdate" : {
+					"$lt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(64388)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"o_orderkey" : "$c_orders.o_orderkey",
+				"o_orderdate" : "$c_orders.o_orderdate",
+				"o_shippriority" : "$c_orders.o_shippriority",
+				"lineitems" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(64388)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(4972),
+			"executionTimeMillisEstimate" : NumberLong(64408)
+		},
+		{
+			"$match" : {
+				"lineitems.l_shipdate" : {
+					"$gt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(4939),
+			"executionTimeMillisEstimate" : NumberLong(64408)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"l_orderkey" : "$o_orderkey",
+					"o_orderdate" : "$o_orderdate",
+					"o_shippriority" : "$o_shippriority"
+				},
+				"revenue" : {
+					"$sum" : {
+						"$multiply" : [
+							"$lineitems.l_extendedprice",
+							{
+								"$subtract" : [
+									{
+										"$const" : 1
+									},
+									"$lineitems.l_discount"
+								]
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"revenue" : NumberLong(90216)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(613970),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1253),
+			"executionTimeMillisEstimate" : NumberLong(64443)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				},
+				"limit" : NumberLong(10)
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(35836),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(10),
+			"executionTimeMillisEstimate" : NumberLong(64443)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_mktsegment" : "AUTOMOBILE"
+				}
+			},
+			{
+				"$unwind" : "$c_orders"
+			},
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$lt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$project" : {
+					"o_orderkey" : "$c_orders.o_orderkey",
+					"o_orderdate" : "$c_orders.o_orderdate",
+					"o_shippriority" : "$c_orders.o_shippriority",
+					"lineitems" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$match" : {
+					"lineitems.l_shipdate" : {
+						"$gt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"l_orderkey" : "$o_orderkey",
+						"o_orderdate" : "$o_orderdate",
+						"o_shippriority" : "$o_shippriority"
+					},
+					"revenue" : {
+						"$sum" : {
+							"$multiply" : [
+								"$lineitems.l_extendedprice",
+								{
+									"$subtract" : [
+										1,
+										"$lineitems.l_discount"
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				}
+			},
+			{
+				"$limit" : 10
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_mktsegment" : {
+							"$eq" : "AUTOMOBILE"
+						}
+					},
+					"queryHash" : "8ECC6016",
+					"planCacheKey" : "59F2C682",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 300036,
+					"executionTimeMillis" : 67452,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_SIMPLE",
+						"nReturned" : 300036,
+						"executionTimeMillisEstimate" : 58312,
+						"works" : 1500002,
+						"advanced" : 300036,
+						"needTime" : 1199965,
+						"needYield" : 0,
+						"saveState" : 4963,
+						"restoreState" : 4963,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : 1,
+							"c_orders" : 1
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_mktsegment" : {
+									"$eq" : "AUTOMOBILE"
+								}
+							},
+							"nReturned" : 300036,
+							"executionTimeMillisEstimate" : 57508,
+							"works" : 1500002,
+							"advanced" : 300036,
+							"needTime" : 1199965,
+							"needYield" : 0,
+							"saveState" : 4963,
+							"restoreState" : 4963,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(300036),
+			"executionTimeMillisEstimate" : NumberLong(64054)
+		},
+		{
+			"$unwind" : {
+				"path" : "$c_orders"
+			},
+			"nReturned" : NumberLong(3000540),
+			"executionTimeMillisEstimate" : NumberLong(65176)
+		},
+		{
+			"$match" : {
+				"c_orders.o_orderdate" : {
+					"$lt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(67364)
+		},
+		{
+			"$project" : {
+				"_id" : true,
+				"o_orderkey" : "$c_orders.o_orderkey",
+				"o_orderdate" : "$c_orders.o_orderdate",
+				"o_shippriority" : "$c_orders.o_shippriority",
+				"lineitems" : "$c_orders.o_lineitems"
+			},
+			"nReturned" : NumberLong(1254),
+			"executionTimeMillisEstimate" : NumberLong(67384)
+		},
+		{
+			"$unwind" : {
+				"path" : "$lineitems"
+			},
+			"nReturned" : NumberLong(4972),
+			"executionTimeMillisEstimate" : NumberLong(67384)
+		},
+		{
+			"$match" : {
+				"lineitems.l_shipdate" : {
+					"$gt" : ISODate("1992-01-02T00:00:00Z")
+				}
+			},
+			"nReturned" : NumberLong(4939),
+			"executionTimeMillisEstimate" : NumberLong(67384)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"l_orderkey" : "$o_orderkey",
+					"o_orderdate" : "$o_orderdate",
+					"o_shippriority" : "$o_shippriority"
+				},
+				"revenue" : {
+					"$sum" : {
+						"$multiply" : [
+							"$lineitems.l_extendedprice",
+							{
+								"$subtract" : [
+									{
+										"$const" : 1
+									},
+									"$lineitems.l_discount"
+								]
+							}
+						]
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"revenue" : NumberLong(90216)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(613970),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1253),
+			"executionTimeMillisEstimate" : NumberLong(67428)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				},
+				"limit" : NumberLong(10)
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(30056),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(10),
+			"executionTimeMillisEstimate" : NumberLong(67438)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_mktsegment" : "AUTOMOBILE"
+				}
+			},
+			{
+				"$unwind" : "$c_orders"
+			},
+			{
+				"$match" : {
+					"c_orders.o_orderdate" : {
+						"$lt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$project" : {
+					"o_orderkey" : "$c_orders.o_orderkey",
+					"o_orderdate" : "$c_orders.o_orderdate",
+					"o_shippriority" : "$c_orders.o_shippriority",
+					"lineitems" : "$c_orders.o_lineitems"
+				}
+			},
+			{
+				"$unwind" : "$lineitems"
+			},
+			{
+				"$match" : {
+					"lineitems.l_shipdate" : {
+						"$gt" : ISODate("1992-01-02T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"l_orderkey" : "$o_orderkey",
+						"o_orderdate" : "$o_orderdate",
+						"o_shippriority" : "$o_shippriority"
+					},
+					"revenue" : {
+						"$sum" : {
+							"$multiply" : [
+								"$lineitems.l_extendedprice",
+								{
+									"$subtract" : [
+										1,
+										"$lineitems.l_discount"
+									]
+								}
+							]
+						}
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"revenue" : -1,
+					"_id.o_orderdate" : 1
+				}
+			},
+			{
+				"$limit" : 10
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

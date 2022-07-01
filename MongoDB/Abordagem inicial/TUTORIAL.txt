@@ -1,0 +1,26 @@
+##### Abordagem inicial #####
+
+1º Gerar os dados usando dbgen (100MB)
+
+	dbgen -s 0.1
+
+2º Converter os .tbl para um .json para ser carregado pelo Mongo
+
+	cd Dados
+	bash tpchToJSON.sh
+
+3º Criar uma database tpch_original (podemos usar a consola do Mongo)
+
+	mongosh
+	use tpch_original
+	quit
+
+4º Carregar os dados para a base de dados
+
+	bash loadData.sh
+
+5º Correr o script para concatenar as tabelas (*criar database jointpch)
+
+	mongosh
+	load("mongo-join.js")
+	quit

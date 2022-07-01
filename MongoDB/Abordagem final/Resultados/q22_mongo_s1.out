@@ -1,0 +1,1209 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_acctbal" : {
+							"$gt" : 0
+						}
+					},
+					"queryHash" : "B4A855D2",
+					"planCacheKey" : "5BDD5A1B",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1363614,
+					"executionTimeMillis" : 133600,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1363614,
+						"executionTimeMillisEstimate" : 65546,
+						"works" : 1500002,
+						"advanced" : 1363614,
+						"needTime" : 136387,
+						"needYield" : 0,
+						"saveState" : 3631,
+						"restoreState" : 3631,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"nReturned" : 1363614,
+							"executionTimeMillisEstimate" : 63419,
+							"works" : 1500002,
+							"advanced" : 1363614,
+							"needTime" : 136387,
+							"needYield" : 0,
+							"saveState" : 3631,
+							"restoreState" : 3631,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1363614),
+			"executionTimeMillisEstimate" : NumberLong(66650)
+		},
+		{
+			"$match" : {
+				"cntrycode" : {
+					"$in" : [
+						"10",
+						"15",
+						"17",
+						"21",
+						"22",
+						"25",
+						"30"
+					]
+				}
+			},
+			"nReturned" : NumberLong(382022),
+			"executionTimeMillisEstimate" : NumberLong(67272)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"$const" : null
+				},
+				"c_acctbal_avg" : {
+					"$avg" : "$c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_acctbal_avg" : NumberLong(80)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(67349)
+		},
+		{
+			"$project" : {
+				"c_acctbal_avg" : true,
+				"_id" : false
+			},
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(67349)
+		},
+		{
+			"$lookup" : {
+				"from" : "scale1",
+				"as" : "c_acctbals",
+				"let" : {
+					
+				},
+				"pipeline" : [
+					{
+						"$match" : {
+							"c_acctbal" : {
+								"$gt" : 0
+							},
+							"c_orders" : {
+								"$eq" : [ ]
+							}
+						}
+					},
+					{
+						"$project" : {
+							"_id" : 0,
+							"c_acctbal" : 1,
+							"cntrycode" : {
+								"$substr" : [
+									"$c_phone",
+									0,
+									2
+								]
+							}
+						}
+					},
+					{
+						"$match" : {
+							"cntrycode" : {
+								"$in" : [
+									"30",
+									"17",
+									"25",
+									"10",
+									"22",
+									"15",
+									"21"
+								]
+							}
+						}
+					}
+				],
+				"unwinding" : {
+					"preserveNullAndEmptyArrays" : false
+				}
+			},
+			"totalDocsExamined" : NumberLong(1500000),
+			"totalKeysExamined" : NumberLong(0),
+			"collectionScans" : NumberLong(26),
+			"indexesUsed" : [ ],
+			"nReturned" : NumberLong(127565),
+			"executionTimeMillisEstimate" : NumberLong(133490)
+		},
+		{
+			"$match" : {
+				"$expr" : {
+					"$gt" : [
+						"$c_acctbals.c_acctbal",
+						"$c_acctbal_avg"
+					]
+				}
+			},
+			"nReturned" : NumberLong(63677),
+			"executionTimeMillisEstimate" : NumberLong(133548)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_acctbals.cntrycode",
+				"numcust" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				},
+				"totacctbal" : {
+					"$sum" : "$c_acctbals.c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"numcust" : NumberLong(504),
+				"totacctbal" : NumberLong(504)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(1827),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(133581)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(1939),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(133591)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_acctbal" : {
+						"$gt" : 0
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_acctbal" : 1,
+					"cntrycode" : {
+						"$substr" : [
+							"$c_phone",
+							0,
+							2
+						]
+					}
+				}
+			},
+			{
+				"$match" : {
+					"cntrycode" : {
+						"$in" : [
+							"30",
+							"17",
+							"25",
+							"10",
+							"22",
+							"15",
+							"21"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : null,
+					"c_acctbal_avg" : {
+						"$avg" : "$c_acctbal"
+					}
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 0,
+					"c_acctbal_avg" : 1
+				}
+			},
+			{
+				"$lookup" : {
+					"from" : "scale1",
+					"pipeline" : [
+						{
+							"$match" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								},
+								"c_orders" : {
+									"$eq" : [ ]
+								}
+							}
+						},
+						{
+							"$project" : {
+								"_id" : 0,
+								"c_acctbal" : 1,
+								"cntrycode" : {
+									"$substr" : [
+										"$c_phone",
+										0,
+										2
+									]
+								}
+							}
+						},
+						{
+							"$match" : {
+								"cntrycode" : {
+									"$in" : [
+										"30",
+										"17",
+										"25",
+										"10",
+										"22",
+										"15",
+										"21"
+									]
+								}
+							}
+						}
+					],
+					"as" : "c_acctbals"
+				}
+			},
+			{
+				"$unwind" : "$c_acctbals"
+			},
+			{
+				"$match" : {
+					"$expr" : {
+						"$gt" : [
+							"$c_acctbals.c_acctbal",
+							"$c_acctbal_avg"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_acctbals.cntrycode",
+					"numcust" : {
+						"$sum" : 1
+					},
+					"totacctbal" : {
+						"$sum" : "$c_acctbals.c_acctbal"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_acctbal" : {
+							"$gt" : 0
+						}
+					},
+					"queryHash" : "B4A855D2",
+					"planCacheKey" : "5BDD5A1B",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1363614,
+					"executionTimeMillis" : 128817,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1363614,
+						"executionTimeMillisEstimate" : 62737,
+						"works" : 1500002,
+						"advanced" : 1363614,
+						"needTime" : 136387,
+						"needYield" : 0,
+						"saveState" : 3483,
+						"restoreState" : 3483,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"nReturned" : 1363614,
+							"executionTimeMillisEstimate" : 60490,
+							"works" : 1500002,
+							"advanced" : 1363614,
+							"needTime" : 136387,
+							"needYield" : 0,
+							"saveState" : 3483,
+							"restoreState" : 3483,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1363614),
+			"executionTimeMillisEstimate" : NumberLong(64225)
+		},
+		{
+			"$match" : {
+				"cntrycode" : {
+					"$in" : [
+						"10",
+						"15",
+						"17",
+						"21",
+						"22",
+						"25",
+						"30"
+					]
+				}
+			},
+			"nReturned" : NumberLong(382022),
+			"executionTimeMillisEstimate" : NumberLong(64777)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"$const" : null
+				},
+				"c_acctbal_avg" : {
+					"$avg" : "$c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_acctbal_avg" : NumberLong(80)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(64832)
+		},
+		{
+			"$project" : {
+				"c_acctbal_avg" : true,
+				"_id" : false
+			},
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(64842)
+		},
+		{
+			"$lookup" : {
+				"from" : "scale1",
+				"as" : "c_acctbals",
+				"let" : {
+					
+				},
+				"pipeline" : [
+					{
+						"$match" : {
+							"c_acctbal" : {
+								"$gt" : 0
+							},
+							"c_orders" : {
+								"$eq" : [ ]
+							}
+						}
+					},
+					{
+						"$project" : {
+							"_id" : 0,
+							"c_acctbal" : 1,
+							"cntrycode" : {
+								"$substr" : [
+									"$c_phone",
+									0,
+									2
+								]
+							}
+						}
+					},
+					{
+						"$match" : {
+							"cntrycode" : {
+								"$in" : [
+									"30",
+									"17",
+									"25",
+									"10",
+									"22",
+									"15",
+									"21"
+								]
+							}
+						}
+					}
+				],
+				"unwinding" : {
+					"preserveNullAndEmptyArrays" : false
+				}
+			},
+			"totalDocsExamined" : NumberLong(1500000),
+			"totalKeysExamined" : NumberLong(0),
+			"collectionScans" : NumberLong(26),
+			"indexesUsed" : [ ],
+			"nReturned" : NumberLong(127565),
+			"executionTimeMillisEstimate" : NumberLong(128665)
+		},
+		{
+			"$match" : {
+				"$expr" : {
+					"$gt" : [
+						"$c_acctbals.c_acctbal",
+						"$c_acctbal_avg"
+					]
+				}
+			},
+			"nReturned" : NumberLong(63677),
+			"executionTimeMillisEstimate" : NumberLong(128757)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_acctbals.cntrycode",
+				"numcust" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				},
+				"totacctbal" : {
+					"$sum" : "$c_acctbals.c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"numcust" : NumberLong(504),
+				"totacctbal" : NumberLong(504)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(1827),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(128797)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(1939),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(128797)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_acctbal" : {
+						"$gt" : 0
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_acctbal" : 1,
+					"cntrycode" : {
+						"$substr" : [
+							"$c_phone",
+							0,
+							2
+						]
+					}
+				}
+			},
+			{
+				"$match" : {
+					"cntrycode" : {
+						"$in" : [
+							"30",
+							"17",
+							"25",
+							"10",
+							"22",
+							"15",
+							"21"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : null,
+					"c_acctbal_avg" : {
+						"$avg" : "$c_acctbal"
+					}
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 0,
+					"c_acctbal_avg" : 1
+				}
+			},
+			{
+				"$lookup" : {
+					"from" : "scale1",
+					"pipeline" : [
+						{
+							"$match" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								},
+								"c_orders" : {
+									"$eq" : [ ]
+								}
+							}
+						},
+						{
+							"$project" : {
+								"_id" : 0,
+								"c_acctbal" : 1,
+								"cntrycode" : {
+									"$substr" : [
+										"$c_phone",
+										0,
+										2
+									]
+								}
+							}
+						},
+						{
+							"$match" : {
+								"cntrycode" : {
+									"$in" : [
+										"30",
+										"17",
+										"25",
+										"10",
+										"22",
+										"15",
+										"21"
+									]
+								}
+							}
+						}
+					],
+					"as" : "c_acctbals"
+				}
+			},
+			{
+				"$unwind" : "$c_acctbals"
+			},
+			{
+				"$match" : {
+					"$expr" : {
+						"$gt" : [
+							"$c_acctbals.c_acctbal",
+							"$c_acctbal_avg"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_acctbals.cntrycode",
+					"numcust" : {
+						"$sum" : 1
+					},
+					"totacctbal" : {
+						"$sum" : "$c_acctbals.c_acctbal"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_acctbal" : {
+							"$gt" : 0
+						}
+					},
+					"queryHash" : "B4A855D2",
+					"planCacheKey" : "5BDD5A1B",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 1363614,
+					"executionTimeMillis" : 139004,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 1363614,
+						"executionTimeMillisEstimate" : 69639,
+						"works" : 1500002,
+						"advanced" : 1363614,
+						"needTime" : 136387,
+						"needYield" : 0,
+						"saveState" : 3822,
+						"restoreState" : 3822,
+						"isEOF" : 1,
+						"transformBy" : {
+							"_id" : true,
+							"c_acctbal" : true,
+							"cntrycode" : {
+								"$substrBytes" : [
+									"$c_phone",
+									{
+										"$const" : 0
+									},
+									{
+										"$const" : 2
+									}
+								]
+							}
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								}
+							},
+							"nReturned" : 1363614,
+							"executionTimeMillisEstimate" : 67568,
+							"works" : 1500002,
+							"advanced" : 1363614,
+							"needTime" : 136387,
+							"needYield" : 0,
+							"saveState" : 3822,
+							"restoreState" : 3822,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(1363614),
+			"executionTimeMillisEstimate" : NumberLong(70395)
+		},
+		{
+			"$match" : {
+				"cntrycode" : {
+					"$in" : [
+						"10",
+						"15",
+						"17",
+						"21",
+						"22",
+						"25",
+						"30"
+					]
+				}
+			},
+			"nReturned" : NumberLong(382022),
+			"executionTimeMillisEstimate" : NumberLong(71073)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"$const" : null
+				},
+				"c_acctbal_avg" : {
+					"$avg" : "$c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"c_acctbal_avg" : NumberLong(80)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(229),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(71139)
+		},
+		{
+			"$project" : {
+				"c_acctbal_avg" : true,
+				"_id" : false
+			},
+			"nReturned" : NumberLong(1),
+			"executionTimeMillisEstimate" : NumberLong(71139)
+		},
+		{
+			"$lookup" : {
+				"from" : "scale1",
+				"as" : "c_acctbals",
+				"let" : {
+					
+				},
+				"pipeline" : [
+					{
+						"$match" : {
+							"c_acctbal" : {
+								"$gt" : 0
+							},
+							"c_orders" : {
+								"$eq" : [ ]
+							}
+						}
+					},
+					{
+						"$project" : {
+							"_id" : 0,
+							"c_acctbal" : 1,
+							"cntrycode" : {
+								"$substr" : [
+									"$c_phone",
+									0,
+									2
+								]
+							}
+						}
+					},
+					{
+						"$match" : {
+							"cntrycode" : {
+								"$in" : [
+									"30",
+									"17",
+									"25",
+									"10",
+									"22",
+									"15",
+									"21"
+								]
+							}
+						}
+					}
+				],
+				"unwinding" : {
+					"preserveNullAndEmptyArrays" : false
+				}
+			},
+			"totalDocsExamined" : NumberLong(1500000),
+			"totalKeysExamined" : NumberLong(0),
+			"collectionScans" : NumberLong(26),
+			"indexesUsed" : [ ],
+			"nReturned" : NumberLong(127565),
+			"executionTimeMillisEstimate" : NumberLong(138868)
+		},
+		{
+			"$match" : {
+				"$expr" : {
+					"$gt" : [
+						"$c_acctbals.c_acctbal",
+						"$c_acctbal_avg"
+					]
+				}
+			},
+			"nReturned" : NumberLong(63677),
+			"executionTimeMillisEstimate" : NumberLong(138982)
+		},
+		{
+			"$group" : {
+				"_id" : "$c_acctbals.cntrycode",
+				"numcust" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				},
+				"totacctbal" : {
+					"$sum" : "$c_acctbals.c_acctbal"
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"numcust" : NumberLong(504),
+				"totacctbal" : NumberLong(504)
+			},
+			"totalOutputDataSizeBytes" : NumberLong(1827),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(138994)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong(1939),
+			"usedDisk" : false,
+			"nReturned" : NumberLong(7),
+			"executionTimeMillisEstimate" : NumberLong(138994)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_acctbal" : {
+						"$gt" : 0
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_acctbal" : 1,
+					"cntrycode" : {
+						"$substr" : [
+							"$c_phone",
+							0,
+							2
+						]
+					}
+				}
+			},
+			{
+				"$match" : {
+					"cntrycode" : {
+						"$in" : [
+							"30",
+							"17",
+							"25",
+							"10",
+							"22",
+							"15",
+							"21"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : null,
+					"c_acctbal_avg" : {
+						"$avg" : "$c_acctbal"
+					}
+				}
+			},
+			{
+				"$project" : {
+					"_id" : 0,
+					"c_acctbal_avg" : 1
+				}
+			},
+			{
+				"$lookup" : {
+					"from" : "scale1",
+					"pipeline" : [
+						{
+							"$match" : {
+								"c_acctbal" : {
+									"$gt" : 0
+								},
+								"c_orders" : {
+									"$eq" : [ ]
+								}
+							}
+						},
+						{
+							"$project" : {
+								"_id" : 0,
+								"c_acctbal" : 1,
+								"cntrycode" : {
+									"$substr" : [
+										"$c_phone",
+										0,
+										2
+									]
+								}
+							}
+						},
+						{
+							"$match" : {
+								"cntrycode" : {
+									"$in" : [
+										"30",
+										"17",
+										"25",
+										"10",
+										"22",
+										"15",
+										"21"
+									]
+								}
+							}
+						}
+					],
+					"as" : "c_acctbals"
+				}
+			},
+			{
+				"$unwind" : "$c_acctbals"
+			},
+			{
+				"$match" : {
+					"$expr" : {
+						"$gt" : [
+							"$c_acctbals.c_acctbal",
+							"$c_acctbal_avg"
+						]
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : "$c_acctbals.cntrycode",
+					"numcust" : {
+						"$sum" : 1
+					},
+					"totacctbal" : {
+						"$sum" : "$c_acctbals.c_acctbal"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

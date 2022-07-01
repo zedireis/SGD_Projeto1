@@ -1,0 +1,753 @@
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "978A715F",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 231857,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 79146,
+						"works" : 1500002,
+						"advanced" : 999979,
+						"needTime" : 500022,
+						"needYield" : 0,
+						"saveState" : 7398,
+						"restoreState" : 7398,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 58711,
+							"works" : 1500002,
+							"advanced" : 999979,
+							"needTime" : 500022,
+							"needYield" : 0,
+							"saveState" : 7398,
+							"restoreState" : 7398,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(87018)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1792512),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1792512),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(1991680),
+				"COUNT(*)" : NumberLong(1792512)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(206875)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(209553)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(225659)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "978A715F",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 223476,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 71436,
+						"works" : 1500002,
+						"advanced" : 999979,
+						"needTime" : 500022,
+						"needYield" : 0,
+						"saveState" : 7044,
+						"restoreState" : 7044,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 50901,
+							"works" : 1500002,
+							"advanced" : 999979,
+							"needTime" : 500022,
+							"needYield" : 0,
+							"saveState" : 7044,
+							"restoreState" : 7044,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(79660)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1792512),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1792512),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(1991680),
+				"COUNT(*)" : NumberLong(1792512)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(197862)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(200590)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(217424)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+
+{
+	"explainVersion" : "1",
+	"stages" : [
+		{
+			"$cursor" : {
+				"queryPlanner" : {
+					"namespace" : "tpch_1.scale1",
+					"indexFilterSet" : false,
+					"parsedQuery" : {
+						"c_orders.o_lineitems.l_shipdate" : {
+							"$lte" : ISODate("1998-08-15T00:00:00Z")
+						}
+					},
+					"queryHash" : "3087B09D",
+					"planCacheKey" : "978A715F",
+					"maxIndexedOrSolutionsReached" : false,
+					"maxIndexedAndSolutionsReached" : false,
+					"maxScansToExplodeReached" : false,
+					"winningPlan" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"direction" : "forward"
+						}
+					},
+					"rejectedPlans" : [ ]
+				},
+				"executionStats" : {
+					"executionSuccess" : true,
+					"nReturned" : 999979,
+					"executionTimeMillis" : 220390,
+					"totalKeysExamined" : 0,
+					"totalDocsExamined" : 1500000,
+					"executionStages" : {
+						"stage" : "PROJECTION_DEFAULT",
+						"nReturned" : 999979,
+						"executionTimeMillisEstimate" : 69875,
+						"works" : 1500002,
+						"advanced" : 999979,
+						"needTime" : 500022,
+						"needYield" : 0,
+						"saveState" : 6950,
+						"restoreState" : 6950,
+						"isEOF" : 1,
+						"transformBy" : {
+							"c_orders.o_lineitems.l_discount" : 1,
+							"c_orders.o_lineitems.l_extendedprice" : 1,
+							"c_orders.o_lineitems.l_linestatus" : 1,
+							"c_orders.o_lineitems.l_quantity" : 1,
+							"c_orders.o_lineitems.l_returnflag" : 1,
+							"_id" : 0
+						},
+						"inputStage" : {
+							"stage" : "COLLSCAN",
+							"filter" : {
+								"c_orders.o_lineitems.l_shipdate" : {
+									"$lte" : ISODate("1998-08-15T00:00:00Z")
+								}
+							},
+							"nReturned" : 999979,
+							"executionTimeMillisEstimate" : 50534,
+							"works" : 1500002,
+							"advanced" : 999979,
+							"needTime" : 500022,
+							"needYield" : 0,
+							"saveState" : 6950,
+							"restoreState" : 6950,
+							"isEOF" : 1,
+							"direction" : "forward",
+							"docsExamined" : 1500000
+						}
+					},
+					"allPlansExecution" : [ ]
+				}
+			},
+			"nReturned" : NumberLong(999979),
+			"executionTimeMillisEstimate" : NumberLong(77641)
+		},
+		{
+			"$group" : {
+				"_id" : {
+					"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+					"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$sum" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+					"$avg" : "$c_orders.o_lineitems.l_quantity"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+					"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+				},
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+					"$avg" : "$c_orders.o_lineitems.l_discount"
+				},
+				"COUNT(*)" : {
+					"$sum" : {
+						"$const" : 1
+					}
+				}
+			},
+			"maxAccumulatorMemoryUsageBytes" : {
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1792512),
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1792512),
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : NumberLong(1991680),
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : NumberLong(1991680),
+				"COUNT(*)" : NumberLong(1792512)
+			},
+			"totalOutputDataSizeBytes" : NumberLong("4648070910"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(193011)
+		},
+		{
+			"$project" : {
+				"c_orders" : {
+					"o_lineitems" : {
+						"l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+						"l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus"
+					}
+				},
+				"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+				"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+				"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+				"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+				"COUNT(*)" : "$COUNT(*)",
+				"_id" : {
+					"l_returnflag" : "$lineitems.l_returnflag",
+					"l_linestatus" : "$lineitems.l_linestatus"
+				}
+			},
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(195843)
+		},
+		{
+			"$sort" : {
+				"sortKey" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			},
+			"totalDataSizeSortedBytesEstimate" : NumberLong("5577210660"),
+			"usedDisk" : true,
+			"nReturned" : NumberLong(999075),
+			"executionTimeMillisEstimate" : NumberLong(214265)
+		}
+	],
+	"serverInfo" : {
+		"host" : "LAPTOP-9QBKR4PH",
+		"port" : 27017,
+		"version" : "5.0.6",
+		"gitVersion" : "212a8dbb47f07427dae194a9c75baec1d81d9259"
+	},
+	"serverParameters" : {
+		"internalQueryFacetBufferSizeBytes" : 104857600,
+		"internalQueryFacetMaxOutputDocSizeBytes" : 104857600,
+		"internalLookupStageIntermediateDocumentMaxSizeBytes" : 104857600,
+		"internalDocumentSourceGroupMaxMemoryBytes" : 104857600,
+		"internalQueryMaxBlockingSortMemoryUsageBytes" : 104857600,
+		"internalQueryProhibitBlockingMergeOnMongoS" : 0,
+		"internalQueryMaxAddToSetBytes" : 104857600,
+		"internalDocumentSourceSetWindowFieldsMaxMemoryBytes" : 104857600
+	},
+	"command" : {
+		"aggregate" : "scale1",
+		"pipeline" : [
+			{
+				"$match" : {
+					"c_orders.o_lineitems.l_shipdate" : {
+						"$lte" : ISODate("1998-08-15T00:00:00Z")
+					}
+				}
+			},
+			{
+				"$group" : {
+					"_id" : {
+						"c_orders᎐o_lineitems᎐l_returnflag" : "$c_orders.o_lineitems.l_returnflag",
+						"c_orders᎐o_lineitems᎐l_linestatus" : "$c_orders.o_lineitems.l_linestatus"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$sum" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$sum" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : {
+						"$avg" : "$c_orders.o_lineitems.l_quantity"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : {
+						"$avg" : "$c_orders.o_lineitems.l_extendedprice"
+					},
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : {
+						"$avg" : "$c_orders.o_lineitems.l_discount"
+					},
+					"COUNT(*)" : {
+						"$sum" : 1
+					}
+				}
+			},
+			{
+				"$project" : {
+					"c_orders.o_lineitems.l_returnflag" : "$_id.c_orders᎐o_lineitems᎐l_returnflag",
+					"c_orders.o_lineitems.l_linestatus" : "$_id.c_orders᎐o_lineitems᎐l_linestatus",
+					"SUM(c_orders᎐o_lineitems᎐l_quantity)" : "$SUM(c_orders᎐o_lineitems᎐l_quantity)",
+					"SUM(c_orders᎐o_lineitems᎐l_extendedprice)" : "$SUM(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_quantity)" : "$AVG(c_orders᎐o_lineitems᎐l_quantity)",
+					"AVG(c_orders᎐o_lineitems᎐l_extendedprice)" : "$AVG(c_orders᎐o_lineitems᎐l_extendedprice)",
+					"AVG(c_orders᎐o_lineitems᎐l_discount)" : "$AVG(c_orders᎐o_lineitems᎐l_discount)",
+					"COUNT(*)" : "$COUNT(*)",
+					"_id" : {
+						"l_returnflag" : "$lineitems.l_returnflag",
+						"l_linestatus" : "$lineitems.l_linestatus"
+					}
+				}
+			},
+			{
+				"$sort" : {
+					"_id.l_returnflag" : 1,
+					"_id.l_linestatus" : 1
+				}
+			}
+		],
+		"allowDiskUse" : true,
+		"cursor" : {
+			
+		},
+		"$db" : "tpch_1"
+	},
+	"ok" : 1
+}
+
+

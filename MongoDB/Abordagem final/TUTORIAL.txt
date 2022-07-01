@@ -1,0 +1,23 @@
+#### Abordagem final ####
+
+1º Gerar os dados usando dbgen (10GB)
+
+	dbgen -s 10
+
+2º Converter os ficheiros .tbl num único JSON
+
+	bash sortTpch.sh
+
+3º Criar a base de dados tpch_1 (usamos a consola do mongo)
+
+	mongosh
+	use tpch_1
+	quit
+
+4º Importar os dados
+
+	bash importData.sh
+
+###### Executar queries
+
+bash run_experiment.sh -q 1,1v2,3 -r 3 -s ./Queries/ -o ./Resultados/
